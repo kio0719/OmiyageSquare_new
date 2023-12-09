@@ -2,6 +2,11 @@
   <div>
     <h1>ユーザー登録</h1>
     <form @submit.prevent>
+      <div v-if="errorMessages">
+        <div v-for="errorMessage in errorMessages" :key="errorMessage">
+          <div>{{ errorMessage }}</div>
+        </div>
+      </div>
       <div>
         <label for="user-name">名前</label>
         <input type="text" id="user-name" v-model="user.name" placeholder="name">
@@ -18,22 +23,24 @@
         <label for="user-password-confirmation">パスワード再確認</label>
         <input type="password" id="user-password-confirmation" v-model="user.password_confirmation" placeholder="password">
       </div>
+      <a href="/">ログイン画面に戻る</a>
       <button type="submit" @click="signUp">登録する</button>
     </form>
   </div>
 </template>
 <script setup>
-import { reactive } from "vue";
+import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 
 const router = useRouter();
+const errorMessages = ref(null);
 
 const user = reactive({
   name: null,
   email: null,
   password: null,
-  password_confirmation: null
+  password_confirmation: ''
 });
 
 const signUp = () => {
@@ -48,6 +55,7 @@ const signUp = () => {
       router.push({ name: "login" });
     })
     .catch(error => {
+      errorMessages.value = error.response.data.errors.full_messages;
       console.error(error);
     })
 }
