@@ -2,6 +2,11 @@
   <div>
     <h1>ログイン</h1>
     <div>
+      <div v-if="errorMessages">
+        <div v-for="errorMessage in errorMessages" :key="errorMessage">
+          {{ errorMessage }}
+        </div>
+      </div>
       <input type="email" v-model="user.email" name="user-email" placeholder="Eメール">
       <input type="password" v-model="user.password" name="user-password" placeholder="password">
       <button type="submit" @click="signIn">ログイン</button>
@@ -10,11 +15,12 @@
   </div>
 </template>
 <script setup>
-import { reactive } from "vue";
+import { ref, reactive } from "vue";
 import axios from "axios";
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const errorMessages = ref(null);
 
 const user = reactive({
   email: null,
@@ -34,6 +40,7 @@ const signIn = () => {
       router.push({ name: "top" })
     })
     .catch(error =>{
+      errorMessages.value = error.response.data.errors;
       console.error(error);
     })
 }
